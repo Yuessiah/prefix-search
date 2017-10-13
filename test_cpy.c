@@ -32,7 +32,7 @@ static void rmcrlf(char *s)
         s[--len] = 0;
 }
 
-#define IN_FILE "cities.txt"
+#define IN_FILE "dictionary/cities.txt"
 
 int main(int argc, char **argv)
 {
