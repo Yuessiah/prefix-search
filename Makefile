@@ -2,7 +2,7 @@ TESTS = \
     test_cpy \
     test_ref
 
-CFLAGS = -Wall -Werror -g
+CFLAGS = -Wall -Werror -g -std=c99 -std=gnu99
 
 # Control the build verbosity                                                   
 ifeq ("$(VERBOSE)","1")
