@@ -6,7 +6,7 @@
 #include "tst.h"
 
 /** constants insert, delete, max word(s) & stack nodes */
-enum { INS, DEL, WRDMAX = 256, STKMAX = 512, LMAX = 1024 };
+enum { INS, DEL, WRDMAX = 256, STKMAX = 512, LMAX = 1024, ORDMAX = 100000, REFMAX = 2560000000 };
 #define REF INS
 #define CPY DEL
 
@@ -34,6 +34,22 @@ static void rmcrlf(char *s)
 
 #define IN_FILE "dictionary/cities.txt"
 
+int ord, reflen;
+char *refer[ORDMAX];
+char *pool_request(char *s)
+{
+    if(reflen + strlen(s) + 1 >= REFMAX) {
+        refer[++ord] = (char*)malloc(sizeof(char)*REFMAX);
+        reflen = 0;
+    }
+    char *tmp = strdup(s), *fp = NULL;
+    fp = strcpy(refer[ord] + reflen, tmp);
+    reflen += strlen(s) + 1;
+    if(tmp) free(tmp);
+
+    return fp;
+}
+
 int main(int argc, char **argv)
 {
     char word[WRDMAX] = "";
@@ -43,6 +59,9 @@ int main(int argc, char **argv)
     FILE *fp = fopen(IN_FILE, "r");
     double t1, t2;
 
+    ord = reflen = 0;
+    refer[ord] = (char*)malloc(sizeof(char)*REFMAX);
+
     if (!fp) { /* prompt, open, validate file for reading */
         fprintf(stderr, "error: file open failed '%s'.\n", argv[1]);
         return 1;
@@ -50,9 +69,8 @@ int main(int argc, char **argv)
 
     t1 = tvgetf();
     while ((rtn = fscanf(fp, "%s", word)) != EOF) {
-        char *p = word;
-        /* FIXME: insert reference to each string */
-        if (!tst_ins_del(&root, &p, INS, CPY)) {
+        char *p = pool_request(word);
+        if (!tst_ins_del(&root, &p, INS, REF)) {
             fprintf(stderr, "error: memory exhausted, tst_insert.\n");
             fclose(fp);
             return 1;
@@ -84,10 +102,9 @@ int main(int argc, char **argv)
                 break;
             }
             rmcrlf(word);
-            p = word;
+            p = pool_request(word);
             t1 = tvgetf();
-            /* FIXME: insert reference to each string */
-            res = tst_ins_del(&root, &p, INS, CPY);
+            res = tst_ins_del(&root, &p, INS, REF);
             t2 = tvgetf();
             if (res) {
                 idx++;
@@ -138,8 +155,7 @@ int main(int argc, char **argv)
             p = word;
             printf("  deleting %s\n", word);
             t1 = tvgetf();
-            /* FIXME: remove reference to each string */
-            res = tst_ins_del(&root, &p, DEL, CPY);
+            res = tst_ins_del(&root, &p, DEL, REF);
             t2 = tvgetf();
             if (res)
                 printf("  delete failed.\n");
@@ -149,7 +165,7 @@ int main(int argc, char **argv)
             }
             break;
         case 'q':
-            tst_free_all(root);
+            for(int i = 0; i <= ord; i++) if(!refer[i]) free(refer[i]);
             return 0;
             break;
         default:
