@@ -31,7 +31,7 @@ def main():
         bad_in.write('d\n')
         bad_in.write(bad[randint(0, len(bad)-1)]+'\n')
 
-    bad_in.write('q\n')
+    bad_in.write('e\nq\n')
 
     for i in range(num):
         match_in.write('f\n')
@@ -46,7 +46,7 @@ def main():
         match_in.write('d\n')
         match_in.write(match[randint(0, len(match)-1)]+'\n')
 
-    match_in.write('q\n')
+    match_in.write('e\nq\n')
 
 
 if __name__ == '__main__':

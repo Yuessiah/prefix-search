@@ -236,8 +236,7 @@ void *tst_ins_del(tst_node **root, char *const *s, const int del, const int cpy)
                     (curr->refcnt)--; /* decrement reference count  */
                     /* chk refcnt, del 's', return NULL on successful del */
                     return tst_del_word(root, curr, &stk, cpy);
-                } else
-                    curr->refcnt++; /* increment refcnt if word exists */
+                } else curr->refcnt++; /* increment refcnt if word exists */
                 return (void *) curr->eqkid; /* pointer to word / NULL on del */
             }
             pcurr = &(curr->eqkid); /* get next eqkid pointer address */

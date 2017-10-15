@@ -2,7 +2,9 @@ TESTS = \
     test_cpy \
     test_ref
 
-CFLAGS = -Wall -Werror -g -std=c99 -std=gnu99
+INPUT = bad_input.txt match_input.txt
+
+CFLAGS = -Wall -Werror -g -std=gnu99
 
 # Control the build verbosity                                                   
 ifeq ("$(VERBOSE)","1")
@@ -15,7 +17,7 @@ endif
 
 GIT_HOOKS := .git/hooks/applied
 
-.PHONY: all clean
+.PHONY: all clean bench
 
 all: $(GIT_HOOKS) $(TESTS)
 
@@ -44,5 +46,26 @@ test_%: test_%.o $(OBJS_LIB)
 clean:
 	$(RM) $(TESTS) $(OBJS)
 	$(RM) $(deps)
+	$(RM) *.txt
+
+bench: $(TESTS)
+	-rm -f output.txt
+	echo 10000 | ./generate_input.py
+	for method in $(TESTS); \
+		do \
+		echo "match-input:" >> output.txt; \
+		./$$method < match_input.txt > /dev/null; \
+		echo "bad-input:" >> output.txt; \
+		./$$method < bad_input.txt > /dev/null; \
+		done
+
+perf_test: $(TESTS)
+	echo 10000 | ./generate_input.py
+	for method in $(TESTS); \
+		do \
+		perf stat -e cache-misses,cache-references,instructions,cycles,branches,branch-misses,instructions ./$$method < match_input.txt > /dev/null; \
+		perf stat -e cache-misses,cache-references,instructions,cycles,branches,branch-misses,instructions ./$$method < bad_input.txt > /dev/null; \
+		done
+
 
 -include $(deps)
