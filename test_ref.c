@@ -43,10 +43,8 @@ char *pool_request(char *s)
         refer[++ord] = (char*)malloc(sizeof(char)*REFMAX);
         reflen = 0;
     }
-    char *tmp = strdup(s), *fp = NULL;
-    fp = strcpy(refer[ord] + reflen, tmp);
+    char *fp = strcpy(refer[ord] + reflen, s);
     reflen += strlen(s) + 1;
-    if(tmp) free(tmp);
 
     return fp;
 }
